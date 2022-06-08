@@ -6,8 +6,8 @@
 #include <MIDI.h>           // MIDI Library: https://github.com/FortySevenEffects/arduino_midi_library
 #include <SoftwareSerial.h>
 using Transport = MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>;
-int rxPin = 8;
-int txPin = 9;
+int rxPin = 8;  // MIDI IN (not used)
+int txPin = 9;  // MIDI OUT
 SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
 Transport serialMIDI(mySerial);
 MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport&)serialMIDI);
@@ -38,10 +38,10 @@ void setup()
 
     // Init Pads: new VeloPad(analogPin, minTrig, maxTrig, midiNote/CC )
     //
-    pads[0] = new VeloPad(A0, 200, 1024, 60 );   
-    pads[1] = new VeloPad(A1, 200, 1024, 61 );
-    pads[2] = new VeloPad(A2, 200, 1024, 62 );
-    pads[3] = new VeloPad(A3, 200, 1024, 63 );
+    pads[0] = new VeloPad(A0, 300, 1024, 60 );   
+    //pads[1] = new VeloPad(A1, 200, 1024, 61 );
+    //pads[2] = new VeloPad(A2, 200, 1024, 62 );
+    //pads[3] = new VeloPad(A3, 200, 1024, 63 );
 
     // MIDI 
     //
