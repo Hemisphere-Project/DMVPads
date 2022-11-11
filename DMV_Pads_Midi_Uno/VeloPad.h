@@ -1,77 +1,90 @@
 class VeloPad 
 {       
   public:
-    VeloPad(int _pin, int _minTrig, int _maxTrig, int _midiNote) {
+    VeloPad(int _pin, int _minTrig, int _maxTrig, int _midiNote) 
+    {
       pin = _pin;
       minTrig = _minTrig;
       maxTrig = _maxTrig;
       midiNote = _midiNote;
       
-      thisIsOn = false;
+      isOn = true;
       counter = 0;    
       currentVelocity = 0;
     }
 
-    void update() {
+    void update() 
+    {
+      int lastVelocity = currentVelocity;
       int value = analogRead(pin);
 
-      // Not trigged
-      if ( value < minTrig ) 
-      {
-        currentVelocity = 0;
-        
-        // Was on -> send OFF
-        if ( thisIsOn ) {
-           thisIsOn = false;
-           MIDI.sendNoteOff(midiNote, 0, MIDI_CHANNEL);
-             Serial.print("[pad");
-             Serial.print(pin);
-             Serial.print("]: NOTEOFF ");
-             Serial.println(midiNote);
-        }
+      // Caclulate current velocity (0->127)
+      currentVelocity = map(value, minTrig, maxTrig, 0, 127);
+      currentVelocity = constrain(currentVelocity, 0, 127);
+
+      // Dsiplay Raw value
+      if ( currentVelocity != lastVelocity ) printRaw(value);
+
+      // NoteON
+      if (currentVelocity > 0 && !isOn) {
+        isOn = true;
+        noteOn();
       }
+      
+      // Send continuous CC value 
+      if ( currentVelocity != lastVelocity ) CC();
 
-      // Triggered
-      else {
-
-        // Map value to velocity
-        currentVelocity = map(value, minTrig, maxTrig, 0, 127);
-        if ( currentVelocity > 127 ) currentVelocity = 127;
-
-        // Was off -> send ON
-        if ( !thisIsOn ) {
-           thisIsOn = true;
-           MIDI.sendNoteOn(midiNote, currentVelocity, MIDI_CHANNEL);
-             Serial.print("[pad");
-             Serial.print(pin);
-             Serial.print("]: NOTEON ");
-             Serial.print(midiNote);
-             Serial.print(" @ ");
-             Serial.println(currentVelocity);
-        }
-        
+      // NoteOFF
+      if (currentVelocity == 0 && isOn) {
+        isOn = false;
+        noteOff();
       }
+      
+    }
 
-      // Send continuous CC value
+    void noteOn() 
+    {
+      MIDI.sendNoteOn(midiNote, currentVelocity, MIDI_CHANNEL);
+           
+         Serial.print("[pad");
+         Serial.print(pin);
+         Serial.print("]: NOTEON ");
+         Serial.print(midiNote);
+         Serial.print(" @ ");
+         Serial.println(currentVelocity);
+    }
+
+    void noteOff()
+    {
+      MIDI.sendNoteOff(midiNote, 0, MIDI_CHANNEL);
+           
+         Serial.print("[pad");
+         Serial.print(pin);
+         Serial.print("]: NOTEOFF ");
+         Serial.println(midiNote);
+    }
+
+    void CC()
+    {
       MIDI.sendControlChange(midiNote, currentVelocity, MIDI_CHANNEL); 
+        
          Serial.print("[pad");
          Serial.print(pin);
          Serial.print("]: CC ");
          Serial.print(midiNote);
          Serial.print(" @ ");
-         Serial.print(currentVelocity);
-         Serial.print(" -- raw =  ");
-         Serial.println(value);
+         Serial.println(currentVelocity);
     }
 
+    void printRaw(int raw_value)
+    {
+      MIDI.sendControlChange(midiNote, currentVelocity, MIDI_CHANNEL); 
 
-    bool isOn() {
-      return thisIsOn;
-    }
-
-
-    int velocity() {
-      return currentVelocity;
+         Serial.println("--------------");
+         Serial.print("[pad");
+         Serial.print(pin);
+         Serial.print("]: raw value = ");
+         Serial.println(raw_value);
     }
     
 
