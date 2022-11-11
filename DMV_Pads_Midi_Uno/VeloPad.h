@@ -7,7 +7,7 @@ class VeloPad
       maxTrig = _maxTrig;
       midiNote = _midiNote;
       
-      isOn = false;
+      thisIsOn = false;
       counter = 0;    
       currentVelocity = 0;
     }
@@ -21,8 +21,8 @@ class VeloPad
         currentVelocity = 0;
         
         // Was on -> send OFF
-        if ( isOn ) {
-           isOn = false;
+        if ( thisIsOn ) {
+           thisIsOn = false;
            MIDI.sendNoteOff(midiNote, 0, MIDI_CHANNEL);
              Serial.print("[pad");
              Serial.print(pin);
@@ -39,8 +39,8 @@ class VeloPad
         if ( currentVelocity > 127 ) currentVelocity = 127;
 
         // Was off -> send ON
-        if ( !isOn ) {
-           isOn = true;
+        if ( !thisIsOn ) {
+           thisIsOn = true;
            MIDI.sendNoteOn(midiNote, currentVelocity, MIDI_CHANNEL);
              Serial.print("[pad");
              Serial.print(pin);
@@ -64,13 +64,24 @@ class VeloPad
          Serial.println(value);
     }
 
+
+    bool isOn() {
+      return thisIsOn;
+    }
+
+
+    int velocity() {
+      return currentVelocity;
+    }
+    
+
   private:
     int pin;
     int minTrig;
     int maxTrig;
     int midiNote;
     int currentVelocity;
-    bool isOn;
+    bool thisIsOn;
     int counter;
     
 };

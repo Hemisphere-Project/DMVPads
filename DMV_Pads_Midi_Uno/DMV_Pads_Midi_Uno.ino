@@ -3,7 +3,7 @@
 
 // MIDI on SoftwareSerial
 //
-#include <MIDI.h>           // MIDI Library: https://github.com/FortySevenEffects/arduino_midi_library
+#include <MIDI.h>           // MIDI Library (Library Manager): https://github.com/FortySevenEffects/arduino_midi_library
 #include <SoftwareSerial.h>
 using Transport = MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>;
 int rxPin = 8;
@@ -54,7 +54,15 @@ void setup()
 void loop()
 {
     // Update each pad
+    bool oneIsOn = false;
     for (int i = 0; i < 8; i++) 
-      if (pads[i] != NULL) pads[i]->update();
+      if (pads[i] != NULL) {
+        pads[i]->update();
+        oneIsOn = oneIsOn || pads[i]->isOn();
+      }
+
+    // LED (on if at least one pad is on)
+    if (oneIsOn) digitalWrite(LED_BUILTIN, HIGH);
+    else digitalWrite(LED_BUILTIN, LOW);
       
 }

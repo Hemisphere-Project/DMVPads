@@ -1,0 +1,11 @@
+
+
+Add Sparkfun Boards in preferences:
+    https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json
+
+Replace .arduino15/packages/SparkFun/hardware/avr/1.1.13/board.txt with the one provided
+
+Select Board SparkFun AVR Board > DMV Pro Micro
+
+
+
